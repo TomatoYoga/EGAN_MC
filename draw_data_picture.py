@@ -92,8 +92,12 @@ def BrownianMotionAndDrift(configs,release_signals,file_folder="./Data/data_new_
 
 def calc_theoretical_nhit_num(configs,release_signals:np.ndarray,is_pair:bool):
     sample_indexs = int(np.round(configs["release_time"] / configs["delta_t"]))
-    p = [probability(configs, i,is_pair=is_pair) for i in range(1, sample_indexs * len(release_signals))]
+    # p = [probability(configs, i,is_pair=is_pair) for i in range(1, sample_indexs * len(release_signals))]
+    # p = [0, *p]
+    # here, do a small change to consider the only pre-signal ISI
+    p = [probability(configs, i,is_pair=is_pair) for i in range(1, sample_indexs * 2)]
     p = [0, *p]
+    p = np.concatenate((p,np.zeros(sample_indexs*(len(release_signals)-2))),axis=0)
     tmp = np.array([shift(p, i * sample_indexs, cval=0) for i in range(len(release_signals))])
     p_true = np.sum(tmp*release_signals[:,np.newaxis],axis=0)
 
